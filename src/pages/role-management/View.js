@@ -12,15 +12,27 @@ export default class ViewPermission extends Component {
             dataList: null,
 
             recordToDelete: '',
-            confirmOpen: false
+            confirmOpen: false,
+
+            permissionList: []
         }
     }
 
     componentDidMount() {
+
+        db.ref('permissions').on('value', snapshot => {
+            var permissionList = [];
+            snapshot.forEach(data => {
+                permissionList.push(data.val());
+            });
+            this.setState({ permissionList });
+        })
+
         db.ref('roles').on('value', snapshot => {
             var dataList = [];
-            snapshot.forEach(child => {
-                dataList.push(child.val());
+            snapshot.forEach(data => {
+                dataList.push(data.val());
+
             });
             this.setState({ dataList });
         })
@@ -49,11 +61,21 @@ export default class ViewPermission extends Component {
     }
 
     renderDataList() {
-        const { dataList } = this.state;
+        const { dataList, permissionList } = this.state;
+
         return dataList ? dataList.map(item => {
+            const assignedPermissions = item.permissions;
+            const renderPermissonNames = assignedPermissions ?
+                assignedPermissions.map(permission => {
+                    return <div key={permission}>
+                        {permissionList.find(x => x.name == permission).displayName}
+                    </div>
+                }) : (
+                    <div></div>
+                )
             return (<Table.Row key={item.name}>
                 <Table.Cell>{item.name}</Table.Cell>
-                <Table.Cell>{item.permissions}</Table.Cell>
+                <Table.Cell>{renderPermissonNames}</Table.Cell>
                 {item.active
                     ? <Table.Cell>
                         <Icon name='checkmark' /> Active
