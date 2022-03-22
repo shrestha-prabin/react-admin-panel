@@ -4,7 +4,8 @@ import './App.css';
 import './css/sidebar.css';
 import 'semantic-ui-css/semantic.min.css'
 
-import { db } from './config/firebase';
+import { db, messaging } from './config/firebase';
+import { getToken, onMessage } from 'firebase/messaging';
 import Sidebar from './components/Sidebar';
 
 import { HashRouter, Switch, Route, Link } from 'react-router-dom';
@@ -20,7 +21,17 @@ import CreateRole from './pages/role-management/Create';
 export default class App extends React.Component {
   
   componentDidMount() {
-    db.ref('/data').set('my val');
+
+    // db.ref('/data').set('my val');
+
+    getToken(messaging, {vapidKey: 'BCLHkVQUzbpafYpUFc1ckPc3ja2D78csnXGHQUF43PYCq5VNY0R61Uxp9fW0YWBRPIa1eXsXcCBhY7oZ_l9QCiY'}).then(token=>{ 
+      console.log(token);
+    })
+
+    onMessage(messaging, (payload)=>{
+      console.log(payload);
+      alert(JSON.stringify(payload))
+    })
   }
 
   render() {
